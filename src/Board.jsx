@@ -8,18 +8,19 @@ class Board extends Component {
     status: "Next player:O",
     isCompleted: false,
   }
+  countClick = 0;
+  id = 0;
 
   possibleWinConditions = [
     [0, 1, 2],
     [0, 3, 6],
     [0, 4, 8],
     [1, 4, 7],
-    [2, 5, 8],
     [2, 4, 6],
+    [2, 5, 8],
     [3, 4, 5],
     [6, 7, 8],
   ];
-  countClick = 0;
 
   handleClick = (i) => {
     if (this.state.squares[i] === null) {
@@ -29,16 +30,15 @@ class Board extends Component {
         status: `Next player:${state.xIsNext ? "X" : "O"}`
       }))
       this.countClick += 1;
-      this.player=this.state.xIsNext ? "X" : "O"
+      this.player = this.state.xIsNext ? "X" : "O"
     }
-    
     if (this.countClick === 9) {
-      this.setState({ status: "draw" })
-      this.setState({isCompleted:true})
+      this.setState({ status: "draw", isCompleted: true })
     }
   }
-  renderSquare = (el,i) => {
-    return <Square key={el+i} value={this.state.squares[i]} disabled={this.state.isCompleted} onClick={() => this.handleClick(i)} />;
+  renderSquare = (el, i) => {
+    this.id++
+    return <Square key={this.id} value={this.state.squares[i]} disabled={this.state.isCompleted} onClick={() => this.handleClick(i)} />;
   }
   resultGame = (player) => {
     const { squares } = this.state
@@ -48,10 +48,9 @@ class Board extends Component {
         squares[j[0]] === player &&
         squares[j[1]] === player &&
         squares[j[2]] === player) {
-        // keep the values together
         localStorage.setItem(player, +localStorage.getItem(player) + 1);
-        this.setState({ status: "Winner:" + player, isCompleted: true })
-        this.countClick = 0
+        this.setState({ status: "Winner:" + player, isCompleted: true });
+        this.countClick = 0;
       }
     }
   }
@@ -72,27 +71,25 @@ class Board extends Component {
     localStorage.setItem('X', 0);
     localStorage.setItem('O', 0);
     this.handleClickRestart()
-    // also restart
   }
 
   componentDidUpdate() {
     if (this.countClick > 4) {
-      // optimize
       this.resultGame(this.player)
     }
   }
 
   render() {
+    const { squares, status } = this.state
     return <div className="container">
       <h3>Count X:{localStorage.getItem('X')}</h3>
       <h3>Count O:{localStorage.getItem('O')}</h3>
       <button onClick={this.handleClickRemoveCount}>REMOVE COUNT</button>
-      <p>{this.state.status} </p>
-
+      <p>{status} </p>
       {/* use loop */}
-      <div className="square_one">
-        {this.state.squares.map((el,i)=>{
-          return this.renderSquare(el,i)
+      <div className="square">
+        {squares.map((el, i) => {
+          return this.renderSquare(el, i)
         })}
       </div><br />
       <button onClick={this.handleClickRestart}>RESTART</button>
